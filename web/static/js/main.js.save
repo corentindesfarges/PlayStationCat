@@ -1,0 +1,93 @@
+$(document).ready(function() {
+    var setupAxis = function(axis) {
+        var group = $('#' + axis);
+        var input = group.find('input');
+        var erroralert = group.find('div.alert-danger').hide();
+        
+        var updateAxis = function() {
+            $.ajax({ url: '/set/servo/' + axis + '/' + input.val(),
+                 type: 'PUT',
+                 error: function(request) {
+                    group.addClass('has-error');
+                    if (request.status === 500) {
+                        erroralert.text($.parseJSON(request.responseText).result);
+                        erroralert.show();
+                    }
+                 },
+                 success: function() {
+                    group.removeClass('has-error');
+                    erroralert.hide();
+                 }
+            });
+        };
+
+        input.change(function() {
+            updateAxis();
+        });
+        group.find('button.decrease').click(function() {
+            input.val(Math.max(input.attr('min'), Number(input.val()) - 5));
+            updateAxis();
+        });
+        group.find('button.increase').click(function() {
+            input.val(Math.min(input.attr('max'), Number(input.val()) + 5));
+            updateAxis();
+        });
+    };
+    setupAxis('xaxis');
+    setupAxis('yaxis');
+
+    $('#calibrationStep').hide();
+
+
+    var updateServos = function() {
+        $.get('/get/servos').done(function(data) {
+            $('#xaxis input').val(data.xaxis);
+            $('#yaxis input').val(data.yaxis);
+        });
+    };
+
+    var video = $('#video img').first();
+    var videoLoad = $.Deferred();
+    window.setTimeout(function() {
+        videoLoad.resolve('ready');
+    }, 2000);
+    video.load(function() {
+        videoLoad.resolve('loaded');
+    });
+
+    videoLoad.promise().then(function(data){
+        video.parent().addClass('ready');
+    }).then(function(data){
+        video.parent().removeClass('ready');
+        $('#calibrationStep').show();
+    });
+    
+    // Wait for the video image to load, then setup calibration.
+    videoLoad.done(function() {
+        calibration.setup('calibrateLayer', video.width(), video.height());
+    });
+
+    // Send target commands based on click locations
+    $('#calibrateLayer').click(function(ev) {
+        if (!calibration.isCalibrating()) {
+            $.ajax({ 
+                url: '/target/' + ev.offsetX + '/' + ev.offsetY, 
+                type: 'PUT'
+            }).done(function() {
+                updateServos();
+            });
+        }
+    });
+
+ $('#calibrateLayer').click(function(ev) {
+        if (!calibration.isCalibrating()) {
+            $.ajax({
+                url: '/target/' + ev.offsetX + '/' + ev.offsetY,
+1                type: 'PUT'
+            }).done(function() {
+                updateServos();
+            });
+        }
+    });
+
+});
