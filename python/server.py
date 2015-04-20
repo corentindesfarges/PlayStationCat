@@ -46,7 +46,7 @@ model = model.LaserModel(servos, SERVO_MIN, SERVO_MAX, SERVO_CENTER)
 # Vue principale pour le rendu de la page
 @app.route('/')
 def main():
-	return render_template('web/main.html', model=model)
+	return render_template('main.html', model=model)
 
 
 @socketio.on('set.servo.x', namespace='/api')
