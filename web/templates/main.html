@@ -36,30 +36,6 @@
                     <form>
                         <input type="number" class="xaxis col-md-6 servoValues" step="5" value="{{ model.getXAxis() }}" min="{{ model.getServoMin() }}" data-center="{{ model.getServoCenter() }}" max="{{ model.getServoMax() }}"></input>
                         <input type="number" class="yaxis col-md-6 servoValues" step="5" value="{{ model.getYAxis() }}" min="{{ model.getServoMin() }}" data-center="{{ model.getServoCenter() }}" max="{{ model.getServoMax() }}"></input>
-                        <!--div id="xaxis" class="form-group">
-                            <label>Axe X</label>
-                            <div class="alert alert-danger"></div>
-                            <div class="input-group">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default decrease" type="button"><span class="glyphicon glyphicon-chevron-left"></span> -5</button>
-                                </span>
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default increase" type="button">+5 <span class="glyphicon glyphicon-chevron-right"></span></button>
-                                </span>
-                            </div>
-                        </div>
-                        <div id="yaxis">
-                            <label>Axe Y</label>
-                            <div class="alert alert-danger"></div>
-                            <div class="input-group">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default decrease" type="button"><span class="glyphicon glyphicon-chevron-left"></span> -5</button>
-                                </span>
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default increase" type="button">+5 <span class="glyphicon glyphicon-chevron-right"></span></button>
-                                </span>
-                            </div>
-                        </div-->
                     </form>
                     <div id="calibrationStep">
                         <h3>Calibration</h3>
@@ -96,14 +72,13 @@
                 </div>
             </div>
         </div>
-        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/jquery-1.10.1.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/json2.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/raphael-min.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/gamepad.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/gamepad.js') }}"></script>
         <script src="{{ url_for('static', filename='js/communication-io.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/calibration.js') }}"></script>
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     </body>
 </html>

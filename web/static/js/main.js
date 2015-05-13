@@ -84,9 +84,6 @@
             updateAxis();  
     }
 
-    $('#calibrationStep').hide();
-
-
     Communication.get().on('get_servos_evt', function(data){
         if(data){
             $('.xaxis').val(data.xaxis);
@@ -123,40 +120,6 @@
         calibration.setup('calibrateLayer', video.width(), video.height());
     });
 
-    // Send target commands based on click locations
-    $('#calibrateLayer').click(function(ev) {
-        if (!calibration.isCalibrating()) {
-            Communication.get().emit('target', {
-                x : ev.offsetX,
-                y : ev.offsetY,
-            });
-        }
-    });
-
-    var mouseDown = false;
-    $('#calibrateLayer').mousedown(function(ev) {
-        mouseDown = true;
-    });
-
-    $('#calibrateLayer').mouseup(function(ev) {
-        mouseDown = false;
-    });
-
-    var timer = true;
-    $('#calibrateLayer').mousemove(function(ev) {
-        if (!calibration.isCalibrating() && mouseDown && timer) {
-            timer = false;
-            setTimeout(function(){
-                timer = true;
-            }, 500);
-            Communication.get().emit('target', {
-                x : ev.offsetX,
-                y : ev.offsetY,
-            });
-        }
-    });
-
-
     var ipAdressIn = $('#ip_adress');
     var portIn = $('#port');
     var uriIn = $('#uri');
@@ -192,16 +155,14 @@
             if((ipAdressIn.val() != data.ipadress || portIn.val() != data.port || uriIn.val() != data.uri) && confirm('Une nouvelle configuration de la vidéo est disponible ('+'http://' + data.ipadress + ':' + data.port + data.uri +'), voulez-vous l\'appliquer ?')){
                 ipAdressIn.val(data.ipadress);
                 portIn.val(data.port);
-                uriIn.val(data.uri);
-                updateVideoLink();
-                video.attr('src', link);
+                uriIn.val(data.uri);                
+                video.attr('src', updateVideoLink());
             }
         }
     })
 
     var gamepad = new Gamepad();
     gamepad.deadzone = 0.08;
-    console.log(gamepad);
     
     gamepad.bind(Gamepad.Event.CONNECTED, function(device) {
         console.log("Connection :" + device.id);
@@ -212,30 +173,24 @@
     });
 
     var time = new Date().getTime();
-    var interval = 500000;
+    var interval = 500;
 
     gamepad.bind(Gamepad.Event.AXIS_CHANGED, function(e) {
         console.log(e.axis, e.value);
         var valChanged = false;
-        if(e.axis == 'LEFT_STICK_X' && (e.value > 0.1 || e.value < -0.1)){
+        if(e.axis == 'LEFT_STICK_X' && (e.value > 0.3 || e.value < -0.3)){
             if(e.value > 0)
-                doDown(parseInt(e.value * 10), false);
+                doRight(parseInt(e.value * 5));
             else
-                doUp(parseInt(-e.value * 10), false);
+                doLeft(parseInt(-e.value * 5));
             valChanged = true;
         }
-        if(e.axis == 'LEFT_STICK_Y' && (e.value > 0.1 || e.value < -0.1)){
+        if(e.axis == 'LEFT_STICK_Y' && (e.value > 0.3 || e.value < -0.3)){
             if(e.value > 0)
-                doRight(parseInt(e.value * 10), false);
+                doDown(parseInt(e.value * 5));
             else
-                doLeft(parseInt(-e.value * 10), false);
+                doUp(parseInt(-e.value * 5));
             valChanged = true;
-        }
-        console.log(time);
-        if(new Date().getTime() > time + interval && valChanged){
-            updateAxis();
-            console.log(axeY, axeX);
-            time = new Date().getTime();
         }
     });
 
