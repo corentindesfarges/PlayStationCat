@@ -1,15 +1,21 @@
 #!/bin/bash
 
-cd /home/$USER/PlayStationCat/python
+cd /home/pi/PlayStationCat/python
+
+if [[ $UID != 0 ]]; then
+    echo "Please run the program as sudo."
+    echo "sudo $0 $*"
+    exit 1
+fi
 
 if [ "$1" == "start" ]; then
-	if [ "$2" == "hidelog" ]; then
-		python server.py test > pscat.log 2>&1 &
+	if [ "$2" == "--showlog" ] || [ "$2" == "-l" ]; then
+		sudo python server.py &
 	else
-		python server.py test &
+		sudo python server.py > pscat.log 2>&1  &
 	fi
 elif [ "$1" == "stop" ]; then
-	kill -9 `ps -u |awk '{if( $12 == "server.py" && $11 == "/usr/bin/python") print $2}'`
+	sudo kill -9 -- `ps aux |awk '{if( $12 == "server.py" && $11 == "/usr/bin/python") print $2}'`
 else
 	echo "Arguments missing or bad"
 fi
