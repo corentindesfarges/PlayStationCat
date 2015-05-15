@@ -135,7 +135,7 @@ void stop_motion_detector(){
 	strcat(command,config->ip_rpi_cam);
 	strcat(command," -p ");
 	strcat(command,config->port_rpi_cam);
-	strcat(command," -o StrictHostKeyChecking=no '/home/pi/PlayStationCat/bash/stop_motion_detector.sh'");
+	strcat(command," -o StrictHostKeyChecking=no 'sudo /home/pi/PlayStationCat/bash/stop_motion_detector.sh'");
 	if(debug){
 		printf("Commande : %s\n", command);
 	}
