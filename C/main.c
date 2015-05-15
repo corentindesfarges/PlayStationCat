@@ -12,7 +12,7 @@ int main(int argc, char** argv){
 	char* missing_conf;
 
 	if(argc >= 2){
-		if(strcmp(argv[1],"true") || strcmp(argv[1],"debug")){
+		if(strcmp(argv[1],"true")==0 || strcmp(argv[1],"debug")==0){
 			printf("Debug mode active\n");
 			debug = true;
 		}
@@ -33,6 +33,8 @@ int main(int argc, char** argv){
 		printf("[4] Take a video\n");
 		printf("[5] Start Motion Detector\n");
 		printf("[6] Stop Motion Detector\n");
+		printf("[7] Play 'Meow' sound\n");
+		printf("[8] Play 'Bug' sound\n");
 		
 		scanf("%d",&mode);
 		system("clear");
@@ -51,6 +53,10 @@ int main(int argc, char** argv){
 			case 5 : start_motion_detector();
 				break;
 			case 6 : stop_motion_detector();
+				break;
+			case 7 : play_sound("meow");
+				break;
+			case 8 : play_sound("bug");
 				break;
 			default:;
 		}
@@ -136,6 +142,28 @@ void stop_motion_detector(){
 	strcat(command," -p ");
 	strcat(command,config->port_rpi_cam);
 	strcat(command," -o StrictHostKeyChecking=no 'sudo /home/pi/PlayStationCat/bash/stop_motion_detector.sh'");
+	if(debug){
+		printf("Commande : %s\n", command);
+	}
+	system(command);
+}
+
+
+/**
+*	Start motion detector module
+**/
+void play_sound(char* file){
+	char command[512] = "";
+
+	strcat(command,"sudo sshpass -p '");
+	strcat(command,config->pwd_rpi_cam);
+	strcat(command,"' ssh pi@");
+	strcat(command,config->ip_rpi_cam);
+	strcat(command," -p ");
+	strcat(command,config->port_rpi_cam);
+	strcat(command," -o StrictHostKeyChecking=no 'python /home/pi/PlayStationCat/python/PlaySound.py ");
+	strcat(command,file);
+	strcat(command,"'");
 	if(debug){
 		printf("Commande : %s\n", command);
 	}

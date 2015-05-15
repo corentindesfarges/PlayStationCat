@@ -40,3 +40,5 @@ void start_motion_detector();
 void stop_motion_detector();
 
 void take_snap();
+
+void play_sound(char* file);
