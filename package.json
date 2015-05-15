@@ -1,0 +1,19 @@
+{
+  "name": "PlayStationCat",
+  "version": "0.6.0",
+  "description": "Play with cat the Play Station Cat.",
+  "contributors": [
+    {
+      "name": "Corentin DESFARGES",
+      "email": "corentin.desfarges@gmail.com"
+    },
+    {
+      "name": "Michel EDIGHOFFER",
+      "email": "edimitchel@gmail.com"
+    }
+  ],
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-sftp-deploy": "^0.2.4"
+  }
+}
