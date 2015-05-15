@@ -16,10 +16,9 @@
                     <h2>Play Station Cat <em>by Michel and Corentin</em></h2>
                     <div id="video">
                         <img src="http://85.168.219.50:8083/video"/>
-                        <div id="calibrateLayer"></div>
                     </div>
                 </div>
-
+                
                 <div class="col-md-3">
                     <h3>Position des servos</h3>
                     <div id="arrowButtons">
@@ -37,15 +36,6 @@
                         <input type="number" class="xaxis col-md-6 servoValues" step="5" value="{{ model.getXAxis() }}" min="{{ model.getServoMin() }}" data-center="{{ model.getServoCenter() }}" max="{{ model.getServoMax() }}"></input>
                         <input type="number" class="yaxis col-md-6 servoValues" step="5" value="{{ model.getYAxis() }}" min="{{ model.getServoMin() }}" data-center="{{ model.getServoCenter() }}" max="{{ model.getServoMax() }}"></input>
                     </form>
-                    <div id="calibrationStep">
-                        <h3>Calibration</h3>
-                        <p class="description">La calibration permet de déterminer l'espace afin que le clic sur l'image puisse orienter le laser à l'endroit cliqué.</p>
-                        <p>
-                            <button class="btn btn-default pull-left">Démarrer la calibration</button>
-                            <button class="btn btn-default pull-right"></button>
-                        </p>
-                        <div class="clearfix"></div>
-                    </div>
                     <div id="videoConfig" class="clearfix">
                         <h3>Configuration vidéo</h3>
                         <p class="description">Déterminer à quelle adresse chercher la vidéo<br>Le lien doit pointer vers une image qui se raffraîchie.</p>

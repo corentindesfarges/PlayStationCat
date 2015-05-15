@@ -1,0 +1,3 @@
+*.pyc
+.ftppass
+node_modules
