@@ -31,6 +31,8 @@ int main(int argc, char** argv){
 		printf("[2] Stop Application Server\n");
 		printf("[3] Take a snap\n");
 		printf("[4] Take a video\n");
+		printf("[5] Start Motion Detector\n");
+		printf("[6] Stop Motion Detector\n");
 		
 		scanf("%d",&mode);
 		system("clear");
@@ -45,6 +47,10 @@ int main(int argc, char** argv){
 			case 3 : take_snap();
 				break;
 			case 4 : start_video_record();
+				break;
+			case 5 : start_motion_detector();
+				break;
+			case 6 : stop_motion_detector();
 				break;
 			default:;
 		}
@@ -98,11 +104,51 @@ void stop_server(){
 
 
 /**
+*	Start motion detector module
+**/
+void start_motion_detector(){
+	char command[512] = "";
+
+	strcat(command,"sudo sshpass -p '");
+	strcat(command,config->pwd_rpi_cam);
+	strcat(command,"' ssh pi@");
+	strcat(command,config->ip_rpi_cam);
+	strcat(command," -p ");
+	strcat(command,config->port_rpi_cam);
+	strcat(command," -o StrictHostKeyChecking=no 'python /home/pi/PlayStationCat/python/motionDetector/VideoTools.py'&");
+	if(debug){
+		printf("Commande : %s\n", command);
+	}
+	system(command);
+}
+
+
+/**
+*	Stop motion detector module
+**/
+void stop_motion_detector(){
+	char command[512] = "";
+
+	strcat(command,"sudo sshpass -p '");
+	strcat(command,config->pwd_rpi_cam);
+	strcat(command,"' ssh pi@");
+	strcat(command,config->ip_rpi_cam);
+	strcat(command," -p ");
+	strcat(command,config->port_rpi_cam);
+	strcat(command," -o StrictHostKeyChecking=no '/home/pi/PlayStationCat/bash/stop_motion_detector.sh'");
+	if(debug){
+		printf("Commande : %s\n", command);
+	}
+	system(command);
+}
+
+
+/**
 *	Take a video record with the remote ip camera
 **/
 void start_video_record(){
 	char duration[9];
-	printf("Set the duration of the record.\n");
+	printf("Set the duration of the record :\n");
 	scanf("%s",duration);
 	char command[512] = "";
 

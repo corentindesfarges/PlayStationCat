@@ -35,6 +35,8 @@ void stop_server();
 void start_server();
 
 void start_video_record();
-void stop_video_record();
+
+void start_motion_detector();
+void stop_motion_detector();
 
 void take_snap();
