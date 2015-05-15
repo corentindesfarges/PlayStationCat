@@ -3,9 +3,12 @@
 	Raspberry Pi (2) is used to manage the toy server
 */
 
+typedef enum { false, true } bool;
+
 typedef struct CONFIG{
 	char* ip_rpi_cam;			//ip address of (1)
 	char* ip_rpi_toy;			//ip address of (2)
+	char* ip_cam;				//ip address of the webcam
 	char* port_cam;				//port to see the video from (1)
 	char* port_toy;				//port to see the application from (2)
 	char* port_rpi_toy;			//port to connect to (1)

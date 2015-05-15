@@ -4,12 +4,19 @@
 #include "main.h"
 
 Config config;
-
+bool debug = false;
 
 int main(int argc, char** argv){
 
 	int mode;
 	char* missing_conf;
+
+	if(argc >= 2){
+		if(strcmp(argv[1],"true") || strcmp(argv[1],"debug")){
+			printf("Debug mode active\n");
+			debug = true;
+		}
+	}
 
 	load_config();
 	
@@ -24,7 +31,6 @@ int main(int argc, char** argv){
 		printf("[2] Stop Application Server\n");
 		printf("[3] Take a snap\n");
 		printf("[4] Take a video\n");
-		printf("[5] Stop a video\n");
 		
 		scanf("%d",&mode);
 		system("clear");
@@ -40,8 +46,6 @@ int main(int argc, char** argv){
 				break;
 			case 4 : start_video_record();
 				break;
-			case 5: stop_video_record();
-				break;
 			default:;
 		}
 	}
@@ -56,13 +60,17 @@ int main(int argc, char** argv){
 void start_server(){
 	printf("Server Starting\n");
 	char command[512] = "";
-	strcat(command,"sshpass -p '");
+	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_toy);
 	strcat(command,"' ssh pi@");
 	strcat(command,config->ip_rpi_toy);
 	strcat(command," -p ");
 	strcat(command,config->port_rpi_toy);
-	strcat(command," './toy_server start'");
+	if(debug){
+		strcat(command," -o StrictHostKeyChecking=no 'sudo /home/pi/PlayStationCat/bash/toy_server.sh start --showlog'");
+		printf("Commande : %s\n", command);
+	} else
+		strcat(command," -o StrictHostKeyChecking=no 'sudo /home/pi/PlayStationCat/bash/toy_server.sh start'");
 	system(command);
 	printf("Server Started\n");
 }
@@ -74,13 +82,16 @@ void start_server(){
 void stop_server(){
 	printf("Server Stopping\n");
 	char command[512] = "";
-	strcat(command,"sshpass -p '");
+	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_toy);
 	strcat(command,"' ssh pi@");
 	strcat(command,config->ip_rpi_toy);
 	strcat(command," -p ");
 	strcat(command,config->port_rpi_toy);
-	strcat(command," './toy_server stop'");
+	strcat(command," -o StrictHostKeyChecking=no 'sudo /home/pi/PlayStationCat/bash/toy_server.sh stop'");
+	if(debug){
+		printf("Commande : %s\n", command);
+	}
 	system(command);
 	printf("Server Stopped\n");
 }
@@ -90,31 +101,58 @@ void stop_server(){
 *	Take a video record with the remote ip camera
 **/
 void start_video_record(){
+	char duration[9];
+	printf("Set the duration of the record.\n");
+	scanf("%s",duration);
 	char command[512] = "";
-	strcat(command,"sshpass -p '");
+
+	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_cam);
 	strcat(command,"' ssh pi@");
 	strcat(command,config->ip_rpi_cam);
 	strcat(command," -p ");
 	strcat(command,config->port_rpi_cam);
-	strcat(command," './cam_server start'");
+	strcat(command," -o StrictHostKeyChecking=no '/home/pi/PlayStationCat/bash/cam_server.sh rec http://");
+	strcat(command,config->ip_cam);
+	strcat(command,":");
+	strcat(command,config->port_cam);
+	strcat(command,"/video ");
+	strcat(command,config->path_record);
+	strcat(command," movie ");
+	strcat(command,duration);
+	if(debug){
+		strcat(command," true'");
+		printf("Commande : %s\n", command);
+	} else {
+		strcat(command," true > mov.log 2>&1'");
+	}
 	system(command);
-}
 
+	char command2[512] = "";
+	strcat(command2,"wget -A avi -m -nd ");
+	strcat(command2,config->ip_rpi_cam);
+	if(debug){
+		strcat(command2,"/todl > downloads.log");
+		printf("Commande : %s\n", command2);
+	} else {
+		strcat(command2,"/todl > downloads.log 2>&1");
+	}
+	system(command2);
 
-/**
-*	Stop taken of a video record with the remote ip camera
-**/
-void stop_video_record(){
-	char command[512] = "";
-	strcat(command,"sshpass -p '");
-	strcat(command,config->pwd_rpi_cam);
-	strcat(command,"' ssh pi@");
-	strcat(command,config->ip_rpi_cam);
-	strcat(command," -p ");
-	strcat(command,config->port_rpi_cam);
-	strcat(command," './cam_server stop'");
-	system(command);
+	char command3[512] = "";
+	strcat(command3,"sudo sshpass -p '");
+	strcat(command3,config->pwd_rpi_cam);
+	strcat(command3,"' ssh pi@");
+	strcat(command3,config->ip_rpi_cam);
+	strcat(command3," -p ");
+	strcat(command3,config->port_rpi_cam);
+	if(debug){
+		strcat(command3," 'rm /var/www/todl/*'");
+		printf("Commande : %s\n", command3);
+	} else {
+		strcat(command3," 'rm /var/www/todl/* > mov.log 2>&1'");
+	}
+	system(command3);
 }
 
 
@@ -123,39 +161,51 @@ void stop_video_record(){
 **/
 void take_snap(){
 	char command[512] = "";
-	strcat(command,"sshpass -p '");
+	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_cam);
 	strcat(command,"' ssh pi@");
 	strcat(command,config->ip_rpi_cam);
 	strcat(command," -p ");
 	strcat(command,config->port_rpi_cam);
-	strcat(command," './snap.sh http://");
-	strcat(command,config->ip_rpi_cam);
+	strcat(command," -o StrictHostKeyChecking=no '/home/pi/PlayStationCat/bash/cam_server.sh snap http://");
+	strcat(command,config->ip_cam);
 	strcat(command,":");
 	strcat(command,config->port_cam);
 	strcat(command,"/video ");
 	strcat(command,config->path_record);
-	strcat(command," true > pic.log 2>&1'");
+	if(debug){
+		strcat(command," true'");
+		printf("Commande : %s\n", command);
+	} else {
+		strcat(command," true > pic.log 2>&1'");
+	}
 	system(command);
-	printf("Commande : %s\n", command);
 
 	char command2[512] = "";
 	strcat(command2,"wget -A png -m -nd ");
 	strcat(command2,config->ip_rpi_cam);
-	strcat(command2,"/todl > logs/download.log 2>&1");
+	if(debug){
+		strcat(command2,"/todl > downloads.log");
+		printf("Commande : %s\n", command2);
+	} else {
+		strcat(command2,"/todl > downloads.log 2>&1");
+	}
 	system(command2);
-	printf("Commande : %s\n", command2);
 
 	char command3[512] = "";
-	strcat(command3,"sshpass -p '");
+	strcat(command3,"sudo sshpass -p '");
 	strcat(command3,config->pwd_rpi_cam);
 	strcat(command3,"' ssh pi@");
 	strcat(command3,config->ip_rpi_cam);
 	strcat(command3," -p ");
 	strcat(command3,config->port_rpi_cam);
-	strcat(command3," 'rm /var/www/todl/*  > pic.log 2>&1'");
+	if(debug){
+		strcat(command3," 'rm /var/www/todl/*'");
+		printf("Commande : %s\n", command3);
+	} else {
+		strcat(command3," 'rm /var/www/todl/* > pic.log 2>&1'");
+	}
 	system(command3);
-	printf("Commande : %s\n", command3);
 
 	printf("Snap took\n");
 }
@@ -208,6 +258,9 @@ void choose_configuration(){
 		return;
 	printf("ip_rpi_toy == \"%s\".\nChange ? n/Y/q (NO, yes, quit configuration)\n",config->ip_rpi_toy);
 	if(get_new_configuration("ip_rpi_toy")==-1)
+		return;
+	printf("ip_cam == \"%s\".\nChange ? n/Y/q (NO, yes, quit configuration)\n",config->ip_cam);
+	if(get_new_configuration("ip_cam")==-1)
 		return;
 	printf("port_cam == \"%s\".\nChange ? n/Y/q (NO, yes, quit configuration)\n",config->port_cam);
 	if(get_new_configuration("port_cam")==-1)
@@ -267,7 +320,10 @@ void complete_configuration(const char* missing_conf){
 	} else if(missing_conf == "ip_rpi_toy") {
 		scanf("%s",config->ip_rpi_toy);
 		override_in_file(missing_conf,config->ip_rpi_toy);
-	} else if(missing_conf == "port_cam") {
+	} else if(missing_conf == "ip_cam") {
+		scanf("%s",config->ip_cam);
+		override_in_file(missing_conf,config->ip_cam);
+	}  else if(missing_conf == "port_cam") {
 		scanf("%s",config->port_cam);
 		override_in_file(missing_conf,config->port_cam);
 	} else if(missing_conf == "port_toy") {
@@ -310,6 +366,7 @@ void load_config(){
 
 	config->ip_rpi_cam = read_in_file("ip_rpi_cam");
 	config->ip_rpi_toy = read_in_file("ip_rpi_toy");
+	config->ip_cam = read_in_file("ip_cam");
 	config->port_cam = read_in_file("port_cam");
 	config->port_toy = read_in_file("port_toy");
 	config->port_rpi_toy = read_in_file("port_rpi_toy");
@@ -329,6 +386,8 @@ char* check_config(){
 		return "ip_rpi_cam";
 	if(strlen(config->ip_rpi_toy) == 0)
 		return "ip_rpi_toy";
+	if(strlen(config->ip_cam) == 0)
+		return "ip_cam";
 	if(strlen(config->port_cam) == 0)
 		return "port_cam";
 	if(strlen(config->port_toy) == 0)
