@@ -11,53 +11,65 @@
     </head>
     <body>
         <div class="container">
+            <h1 class="text-center">Play Station Cat <em>by Michel and Corentin</em></h1>
             <div class="row">
                 <div class="col-md-8">
-                    <h2>Play Station Cat <em>by Michel and Corentin</em></h2>
                     <div id="video">
                         <img src="http://85.168.219.50:8083/video"/>
                     </div>
                 </div>
                 
                 <div class="col-md-3">
-                    <h3>Position des servos</h3>
-                    <div id="arrowButtons">
-                        <div class="row">
-                            <button id="moveUp" class="col-md-offset-4 col-md-4 btn btn-default"><span class="glyphicon glyphicon-arrow-up"></span></button>
+                    <div id="board">
+                        <div id="arrowButtons">
+                            <div class="row">
+                                <button id="moveUp" class="col-md-offset-4 col-md-4 btn btn-default"><span class="glyphicon glyphicon-chevron-up"></span></button>
+                            </div>
+                            <div class="row">
+                                <button id="moveLeft" class="col-md-4 btn btn-default"><span class="glyphicon glyphicon-chevron-left"></span></button>
+                                <button id="moveDown" class="col-md-4 btn btn-default"><span class="glyphicon glyphicon-chevron-down"></span></button>
+                                <button id="moveRight" class="col-md-4 btn btn-default"><span class="glyphicon glyphicon-chevron-right"></span></button>
+                            </div>
                         </div>
-                        <div class="row">
-                            <button id="moveLeft" class="col-md-4 btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span></button>
-                            <button id="moveDown" class="col-md-4 btn btn-default"><span class="glyphicon glyphicon-arrow-down"></span></button>
-                            <button id="moveRight" class="col-md-4 btn btn-default"><span class="glyphicon glyphicon-arrow-right"></span></button>
-                        </div>
-                    </div>
-                        
-                    <form>
-                        <input type="number" class="xaxis col-md-6 servoValues" step="5" value="{{ model.getXAxis() }}" min="{{ model.getServoMin() }}" data-center="{{ model.getServoCenter() }}" max="{{ model.getServoMax() }}"></input>
-                        <input type="number" class="yaxis col-md-6 servoValues" step="5" value="{{ model.getYAxis() }}" min="{{ model.getServoMin() }}" data-center="{{ model.getServoCenter() }}" max="{{ model.getServoMax() }}"></input>
-                    </form>
-                    <div id="videoConfig" class="clearfix">
-                        <h3>Configuration vidéo</h3>
-                        <p class="description">Déterminer à quelle adresse chercher la vidéo<br>Le lien doit pointer vers une image qui se raffraîchie.</p>
-                        <form action="#" id="videoForm">
-                            <div id="videoLink"></div>
-                            <div class="entry">
-                                <label for="ip_adress">Adresse ip</label>
-                                <input id="ip_adress" type="text" value="{{ model.ipadress }}">
-                            </div>
-                            <div class="entry">
-                                <label for="port">Port</label>
-                                <input id="port" type="text" value="{{ model.port }}">
-                            </div>
-                            <div class="entry">
-                                <label for="uri">Lien</label>
-                                <input id="uri" type="text" value="{{ model.uri }}">
-                            </div>
-                            <div class="entry">
-                                <br>
-                                <button class="btn btn-default">Mettre à jour</button>
-                            </div>
+                            
+                        <form class="hidden">
+                            <input type="number" class="xaxis col-md-6 servoValues" step="5" value="{{ model.getXAxis() }}" min="{{ model.getServoMin() }}" data-center="{{ model.getServoCenter() }}" max="{{ model.getServoMax() }}"></input>
+                            <input type="number" class="yaxis col-md-6 servoValues" step="5" value="{{ model.getYAxis() }}" min="{{ model.getServoMin() }}" data-center="{{ model.getServoCenter() }}" max="{{ model.getServoMax() }}"></input>
                         </form>
+                        
+                        <br>
+                        <div class="text-center">
+                            <h4>Jouer des sons</h4>
+                            <button class="btn btn-default play-sound" data-name="meow"><span class="glyphicon glyphicon-play-circle"></span> Meow</button>
+                            <button class="btn btn-default play-sound" data-name="bug"><span class="glyphicon glyphicon-play-circle"></span> Bruit d'insecte</button>
+                        </div>
+                        <br>
+                        <div class="text-center">
+                            <button class="btn btn-default" id="btn_config"><span class="glyphicon glyphicon-cog"></span> Configurer la vidéo</button>
+                        </div>
+                        <div id="videoConfig" class="clearfix hidden">
+                            <h3>Configuration vidéo</h3>
+                            <p class="description">Déterminer à quelle adresse chercher la vidéo<br>Le lien doit pointer vers une image qui se raffraîchie.</p>
+                            <form action="#" id="videoForm">
+                                <div id="videoLink"></div>
+                                <div class="entry">
+                                    <label for="ip_adress">Adresse ip</label>
+                                    <input id="ip_adress" type="text" value="{{ model.ipadress }}">
+                                </div>
+                                <div class="entry">
+                                    <label for="port">Port</label>
+                                    <input id="port" type="text" value="{{ model.port }}">
+                                </div>
+                                <div class="entry">
+                                    <label for="uri">Lien</label>
+                                    <input id="uri" type="text" value="{{ model.uri }}">
+                                </div>
+                                <div class="entry">
+                                    <br>
+                                    <button class="btn btn-default">Mettre à jour</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

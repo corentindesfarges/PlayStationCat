@@ -13,24 +13,29 @@
         });
     };
     
+    var btnLeft,
+        btnRight,
+        btnUp,
+        btnDown;
+
     function setupArrows(){
-        var btnLeft = document.getElementById('moveLeft'), 
-            btnRight = document.getElementById('moveRight'),
-            btnUp = document.getElementById('moveUp'),
-            btnDown = document.getElementById('moveDown');
+        btnLeft = $('#moveLeft'), 
+        btnRight = $('#moveRight'),
+        btnUp = $('#moveUp'),
+        btnDown = $('#moveDown');
         
-        btnLeft.onclick = function() {
+        btnLeft.click(function() {
             doLeft();
-        };
-        btnRight.onclick = function() {
+        });
+        btnRight.click(function() {
             doRight();
-        };
-        btnUp.onclick = function() {
+        });
+        btnUp.click(function() {
             doUp();
-        };
-        btnDown.onclick = function() {
+        });
+        btnDown.click(function() {
             doDown();
-        };
+        });
     }
     setupArrows();
 
@@ -58,30 +63,49 @@
 
     function doLeft(val, update){
         val = val ? val : 5;
-        axeX.val(Math.min(maxX, Number(axeX.val()) + val));
-        if(update == undefined || update === true)
-        updateAxis();  
+        doChange(axeX, "l",Math.max(minX, Number(axeX.val()) + val), update);
     }
 
     function doRight(val, update){
         val = val ? val : 5;
-        axeX.val(Math.max(minX, Number(axeX.val()) - val));
-        if(update == undefined || update === true)
-            updateAxis();   
+        doChange(axeX, "r",Math.max(minX, Number(axeX.val()) - val), update);
     }
 
     function doDown(val, update){
         val = val ? val : 5;
-        axeY.val(Math.min(maxY, Number(axeY.val()) + val));
-        if(update == undefined || update === true)
-            updateAxis();   
+        doChange(axeY, "d",Math.max(minY, Number(axeY.val()) + val), update);
     }
 
     function doUp(val, update){
         val = val ? val : 5;
-        axeY.val(Math.max(minY, Number(axeY.val()) - val));
+        doChange(axeY, "u",Math.max(minY, Number(axeY.val()) - val), update);
+    }
+
+    function doChange(axis, dir, val, update) {
+        axis.val(val);
         if(update == undefined || update === true)
             updateAxis();  
+
+        var btnPushed;
+        switch(dir){
+            case 'l':
+                btnPushed = btnLeft;
+                break;
+            case 'u':
+                btnPushed = btnUp;
+                break;
+            case 'r':
+                btnPushed = btnRight;
+                break;
+            case 'd':
+                btnPushed = btnDown;
+                break;
+        }
+
+        btnPushed.addClass('pushed');
+        setTimeout(function(){
+            btnPushed.removeClass('pushed');
+        }, 200);
     }
 
     Communication.get().on('get_servos_evt', function(data){
@@ -112,13 +136,12 @@
         video.parent().addClass('ready');
     }).then(function(data){
         video.parent().removeClass('ready');
-        $('#calibrationStep').show();
     });
     
-    // Wait for the video image to load, then setup calibration.
-    videoLoad.done(function() {
-        calibration.setup('calibrateLayer', video.width(), video.height());
-    });
+    $("#btn_config").on('click', function(){
+        $('#videoConfig').toggleClass('hidden');
+        $(this).toggleClass('btn-success', !$('#videoConfig').hasClass('hidden'));  
+    })
 
     var ipAdressIn = $('#ip_adress');
     var portIn = $('#port');
@@ -133,9 +156,6 @@
 
         var link = updateVideoLink()
         video.attr('src', link);
-        video.load(function(){
-            calibration.setup('calibrateLayer', video.width(), video.height());
-        });
         Communication.get().emit('set.videoconf', {
             ipadress : ipAdressIn.val(),
             port : portIn.val(),
@@ -159,17 +179,30 @@
                 video.attr('src', updateVideoLink());
             }
         }
+    });
+
+    $('.play-sound').click(function(){
+        var name = $(this).attr('data-name');
+
+        Communication.get().emit('playsound', {
+            what : name
+        });
+    });
+
+    Communication.get().on('played_sound', function(data){
+        var audio = new Audio('/static/sound/'+data);
+            audio.play();
     })
 
     var gamepad = new Gamepad();
     gamepad.deadzone = 0.08;
     
     gamepad.bind(Gamepad.Event.CONNECTED, function(device) {
-        console.log("Connection :" + device.id);
+        console.log("Connection : " + device.id);
     });
 
     gamepad.bind(Gamepad.Event.DISCONNECTED, function(device) {
-        console.log("Disconnection :" + device.id);
+        console.log("Disconnection : " + device.id);
     });
 
     var time = new Date().getTime();

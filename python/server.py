@@ -1,6 +1,8 @@
 from flask import *
 from flask.ext.socketio import SocketIO, send, emit
 import json, sys
+import os
+
 from src import model
 
 # Configuration du framework 
@@ -88,6 +90,12 @@ def setCalibration(message):
 def target(message):
 	model.target(message['x'], message['y'])
 	emit('target_evt', '')
+
+
+@socketio.on('playsound', namespace='/api')
+def target(message):
+	emit('played_sound', message['what'] + ".mp3", broadcast=True)
+	os.system("python PlaySound.py " + message['what'])
 
 
 # Demarrage du framework
