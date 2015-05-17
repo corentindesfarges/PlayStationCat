@@ -255,7 +255,7 @@ void start_video_record(char* duration){
 
 	printf("Downloading video record\n");
 	char command2[512] = "";
-	strcat(command2,"wget -A avi -m -nd ");
+	strcat(command2,"wget -A avi -m -nd --directory-prefix=../data/records ");
 	strcat(command2,config->ip_rpi_cam);
 	if(debug){
 		strcat(command2,"/todl > downloads.log");
@@ -310,7 +310,7 @@ void take_snap(){
 
 	printf("Downloading snap\n");
 	char command2[512] = "";
-	strcat(command2,"wget -A png -m -nd ");
+	strcat(command2,"wget -A png -m -nd --directory-prefix=../data/snaps ");
 
 	strcat(command2,config->ip_rpi_cam);
 	if(debug){
