@@ -1,5 +1,7 @@
 import json
 import numpy as np
+import time
+from random import randint
 
 class LaserModel(object):
     def __init__(self, servos, servoMin, servoMax, servoCenter):
@@ -9,17 +11,11 @@ class LaserModel(object):
         self.servoCenter = servoCenter
         self.setXAxis(servoCenter)
         self.setYAxis(servoCenter)
-        self.targetCalibration = None
-        self.servoCalibration = None
         self.ipadress = None
         self.port = None
         self.uri = None
-        self.transform = None
-        self.calibrationFile = 'calibration.json'
         self.confVideoFile = 'confVideo.json'
-        self._loadCalibration()
         self._loadVideoConfiguration()
-        self._generateTransform()
 
     def setXAxis(self, value):
         self.xAxisValue = self._validateAxis(value)
@@ -48,15 +44,6 @@ class LaserModel(object):
     def getServoCenter(self):
         return self.servoCenter
 
-    def setCalibration(self, targetCalibration, servoCalibration):
-        self.targetCalibration = targetCalibration
-        self.servoCalibration = servoCalibration
-        self._generateTransform()
-        self._saveCalibration()
-
-    def getCalibration(self):
-        return self.targetCalibration, self.servoCalibration
-
     def getVideoConfiguration(self):
         return self.ipadress, self.port, self.uri
 
@@ -66,15 +53,48 @@ class LaserModel(object):
         self.uri = uri
         self._saveVideoConfiguration()
 
-    def target(self, x, y):
-        """Transforme les positions cordonnee de l'ecran en position coordonnees du servo et bouge les servos de maniere synchronisee."""
-        if self.transform == None:
-            raise ValueError('Calibration not set!')
-        screen = np.array([float(x), float(y), 1.0])
-        servo = self.transform.dot(screen)
-        servo = servo/servo[2]
-        self.setXAxis(round(servo[0]))
-        self.setYAxis(round(servo[1]))
+    def playRandomWay(self, directions):
+        """Deplace le laser suivant des directions donnees. Si aucune definie, un chemin aleatoire est cree."""
+        if len(directions) == 0:
+            """Creer un chemin aleatoire si aucunes directions n'est renseignee."""
+
+            nb = randint(7, 15)
+            while nb:
+                r = randint(1, 4)
+                if r == 1:
+                    directions.append('r')
+                elif r == 2:
+                    directions.append('u')
+                elif r == 3:
+                    directions.append('l')
+                elif r == 4:
+                    directions.append('d')
+                nb = nb - 1
+            
+        for direction in directions:
+            if direction == 'r':
+                try:
+                    self.setXAxis(self._validateAxis(self.getXAxis() - 15))
+                except ValueError:
+                    print ''
+            elif direction == 'u':
+                try:
+                    self.setYAxis(self._validateAxis(self.getYAxis() - 15))
+                except ValueError:
+                    print ''
+            elif direction == 'l':
+                try:
+                    self.setXAxis(self._validateAxis(self.getXAxis() + 15))
+                except ValueError:
+                    print ''
+            elif direction == 'd':
+                try:
+                    self.setYAxis(self._validateAxis(self.getYAxis() + 15))
+                except ValueError:
+                    print ''
+            print 'DIRECTION ' + direction
+            time.sleep(0.5)
+
 
     def _validateAxis(self, value):
         """Valide si les valeurs de servo sont dans la fourchette autorisee."""
@@ -85,21 +105,6 @@ class LaserModel(object):
             return v
         except:
             raise ValueError('Invalid value! Must be a value between %i and %i.' % (self.servoMin, self.servoMax))
-
-    def _loadCalibration(self):
-        """Charge les donnees de calibration depuis le JSON."""
-        try:
-            with open(self.calibrationFile, 'r') as file:
-                cal = json.loads(file.read())
-                self.targetCalibration = cal['targetCalibration']
-                self.servoCalibration = cal['servoCalibration']
-        except IOError:
-            pass
-
-    def _saveCalibration(self):
-        """Enregistre les donnees de calibration dans le JSON."""
-        with open(self.calibrationFile, 'w') as file:
-            file.write(json.dumps({'targetCalibration': self.targetCalibration, 'servoCalibration': self.servoCalibration }))
 
     def _loadVideoConfiguration(self):
         """Charge les donnees de configuration video depuis le JSON."""
@@ -117,43 +122,3 @@ class LaserModel(object):
         """Enregistre les donnees de configuration video dans le JSON."""
         with open(self.confVideoFile, 'w+') as file:
             file.write(json.dumps({'ipadress': self.ipadress, 'port': self.port, 'uri': self.uri }))
-
-    def _generateTransform(self):
-        """ 
-        Effectue une transformation de matrice pour recuperer une matrice qui sera appliquer a la variable transform
-        """
-        if self.targetCalibration == None or self.servoCalibration == None:
-            return
-        # Define some variables to make the matrices easier to read
-        x1 = float(self.targetCalibration[0]['x'])
-        y1 = float(self.targetCalibration[0]['y'])
-        x2 = float(self.targetCalibration[1]['x'])
-        y2 = float(self.targetCalibration[1]['y'])
-        x3 = float(self.targetCalibration[2]['x'])
-        y3 = float(self.targetCalibration[2]['y'])
-        x4 = float(self.targetCalibration[3]['x'])
-        y4 = float(self.targetCalibration[3]['y'])
-        X1 = float(self.servoCalibration[0]['x'])
-        Y1 = float(self.servoCalibration[0]['y'])
-        X2 = float(self.servoCalibration[1]['x'])
-        Y2 = float(self.servoCalibration[1]['y'])
-        X3 = float(self.servoCalibration[2]['x'])
-        Y3 = float(self.servoCalibration[2]['y'])
-        X4 = float(self.servoCalibration[3]['x'])
-        Y4 = float(self.servoCalibration[3]['y'])
-        # Define matrices
-        A = np.array([  [x1, y1,  1,  0,  0,  0, -X1*x1, -X1*y1],
-                        [ 0,  0,  0, x1, y1,  1, -Y1*x1, -Y1*y1],
-                        [x2, y2,  1,  0,  0,  0, -X2*x2, -X2*y2],
-                        [ 0,  0,  0, x2, y2,  1, -Y2*x2, -Y2*y2],
-                        [x3, y3,  1,  0,  0,  0, -X3*x3, -X3*y3],
-                        [ 0,  0,  0, x3, y3,  1, -Y3*x3, -Y3*y3],
-                        [x4, y4,  1,  0,  0,  0, -X4*x4, -X4*y4],
-                        [ 0,  0,  0, x4, y4,  1, -Y4*x4, -Y4*y4] ])
-        B = np.array([X1, Y1, X2, Y2, X3, Y3, X4, Y4])
-        # Solve for coefficients x in equation Ax = B
-        x = np.linalg.solve(A, B)
-        # Set transformation matrix with coefficients
-        self.transform = np.array([  [x[0], x[1], x[2]],
-                                     [x[3], x[4], x[5]],
-                                     [x[6], x[7],  1.0] ])

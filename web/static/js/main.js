@@ -16,7 +16,10 @@
     var btnLeft,
         btnRight,
         btnUp,
-        btnDown;
+        btnDown,
+        modeRecording = false,
+        recordKeyList = [],
+        recordList = [];
 
     function setupArrows(){
         btnLeft = $('#moveLeft'), 
@@ -82,10 +85,6 @@
     }
 
     function doChange(axis, dir, val, update) {
-        axis.val(val);
-        if(update == undefined || update === true)
-            updateAxis();  
-
         var btnPushed;
         switch(dir){
             case 'l':
@@ -106,6 +105,16 @@
         setTimeout(function(){
             btnPushed.removeClass('pushed');
         }, 200);
+
+        if(modeRecording) {
+            recordKeyList.push(dir);
+
+            return;
+        }
+
+        axis.val(val);
+        if(update == undefined || update === true)
+            updateAxis();  
     }
 
     Communication.get().on('get_servos_evt', function(data){
@@ -114,10 +123,46 @@
             $('.yaxis').val(data.yaxis);
         }
     });
-    Communication.get().on('target_evt', function(data){
-        updateServos();
+
+    var laserwaySection = $("#laserway");
+
+    laserwaySection.find('.record').click(function(){
+        if(modeRecording === false) {
+            // Début de l'enregistrement
+            $(this).attr('data-text', $(this).html()).html('<span class="glyphicon glyphicon-stop"></span> Arrêter l\'enregistrement');
+            modeRecording = true;
+        } else {
+            // Fin de l'enregistrement
+            $(this).html($(this).attr('data-text'));
+            var nom = prompt("Entrez un nom pour cette enregistrement", "Chemin " + (recordList.length + 1));
+            recordList.push({
+                name : nom,
+                directions : [].concat(recordKeyList)
+            });
+
+            laserwaySection.find('table tbody').empty()
+            for(var i = 0; i < recordList.length; i++){
+                var rec = recordList[i],
+                    node = $('<tr><td>'+rec.name+'</td><td><button class="btn btn-success">Lancer</button></td></tr>');
+
+                node.find('button').bind('click', function(){
+                    Communication.get().emit('playrandomway', {
+                        'directions' : rec.directions
+                    });
+                });
+                laserwaySection.find('table tbody').append(node);
+            }
+
+            recordKeyList = [];
+            modeRecording = false;
+        }
     });
-        
+
+    laserwaySection.find('.saved-ways').click(function(){
+        Communication.get().emit('playrandomway', {
+            'directions' : []
+        });
+    });        
 
     var updateServos = function() {
         Communication.get().emit('get.servos');

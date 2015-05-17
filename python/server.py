@@ -69,33 +69,18 @@ def setServoXAxis(message):
 def getServos():
 	emit('get_servos_evt', {'xaxis': model.getXAxis(), 'yaxis': model.getYAxis() }, broadcast=True)
 
-@socketio.on('get.calibration', namespace='/api')
-def getCalibration():
-	emit('get_calibration_evt', {'target': model.targetCalibration, 'servo': model.servoCalibration})
-	
-@socketio.on('set.calibration', namespace='/api')
-def setCalibration(message):
-	model.setCalibration(message['targetCalibration'], message['servoCalibration'])
-
 @socketio.on('get.videoconf', namespace='/api')
 def getVideoConf():
 	emit('get_videoconf_evt', {'ipadress': model.ipadress, 'port': model.port, 'uri': model.uri})
-	
-@socketio.on('set.videoconf', namespace='/api')
-def setCalibration(message):
-	model.setVideoConf(message['ipadress'], message['port'], message['uri'])
-	emit('new_videoconf_evt', {'ipadress': model.ipadress, 'port': model.port, 'uri': model.uri}, broadcast=True)
-
-@socketio.on('target', namespace='/api')
-def target(message):
-	model.target(message['x'], message['y'])
-	emit('target_evt', '')
-
 
 @socketio.on('playsound', namespace='/api')
 def target(message):
 	emit('played_sound', message['what'] + ".mp3", broadcast=True)
 	os.system("python PlaySound.py " + message['what'])
+
+@socketio.on('playrandomway', namespace='/api')
+def target(message):
+	model.playRandomWay(message['directions'])
 
 
 # Demarrage du framework
