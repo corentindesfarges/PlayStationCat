@@ -5,6 +5,12 @@
 
 typedef enum { false, true } bool;
 
+typedef struct PARAMS
+{
+	int mode;
+	char* duration;
+} *Params;
+
 typedef struct CONFIG{
 	char* ip_rpi_cam;			//ip address of (1)
 	char* ip_rpi_toy;			//ip address of (2)
@@ -17,6 +23,8 @@ typedef struct CONFIG{
 	char* pwd_rpi_toy;			//password to access to (2) 
 	char* path_record;			//location for remote record
 } *Config;
+
+void *launch_thread(void * p);
 
 void complete_configuration(const char* missing_conf);
 void choose_configuration();
@@ -34,11 +42,13 @@ char* check_config();
 void stop_server();
 void start_server();
 
-void start_video_record();
+void start_video_record(char* duration);
 
 void start_motion_detector();
 void stop_motion_detector();
 
 void take_snap();
+
+void clear_files_on_server();
 
 void play_sound(char* file);

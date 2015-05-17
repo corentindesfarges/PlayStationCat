@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -5,18 +6,48 @@
 
 Config config;
 bool debug = false;
+pthread_t * table_threads;
+
+void *launch_thread(void * p){
+	Params params = (Params) p;
+
+	switch(params->mode){
+		case 1 : start_server();
+			break;
+		case 2 : stop_server();
+			break;
+		case 3 : take_snap();
+			break;
+		case 4 : start_video_record(params->duration);
+			break;
+		case 5 : start_motion_detector();
+			break;
+		case 6 : stop_motion_detector();
+			break;
+		case 7 : play_sound("meow");
+			break;
+		case 8 : play_sound("bug");
+			break;
+		default:;
+	}
+    pthread_exit(NULL);
+}
+
 
 int main(int argc, char** argv){
 
-	int mode;
+	int mode, i;
 	char* missing_conf;
 
 	if(argc >= 2){
-		if(strcmp(argv[1],"true")==0 || strcmp(argv[1],"debug")==0){
+		if(strcmp(argv[1],"true")==0 || strcmp(argv[1],"debug")==0 || strcmp(argv[1],"--debug")==0){
 			printf("Debug mode active\n");
 			debug = true;
 		}
 	}
+
+	//table of threads
+	table_threads = (pthread_t*)malloc(8*sizeof(pthread_t));
 
 	load_config();
 	
@@ -25,42 +56,63 @@ int main(int argc, char** argv){
 	}
 
 	while(1){
-	
- 		printf("[0] Configuration\n");
-		printf("[1] Launch Application Server\n");
-		printf("[2] Stop Application Server\n");
-		printf("[3] Take a snap\n");
-		printf("[4] Take a video\n");
-		printf("[5] Start Motion Detector\n");
-		printf("[6] Stop Motion Detector\n");
-		printf("[7] Play 'Meow' sound\n");
-		printf("[8] Play 'Bug' sound\n");
+
+		system("clear");
+
+		printf("[-1] Exit\n");
+		printf("[ 1] Launch Application Server\n");
+		printf("[ 2] Stop Application Server\n");
+		printf("[ 3] Take a snap\n");
+		printf("[ 4] Take a video\n");
+		printf("[ 5] Start Motion Detector\n");
+		printf("[ 6] Stop Motion Detector\n");
+		printf("[ 7] Play 'Meow' sound\n");
+		printf("[ 8] Play 'Bug' sound\n");
+		printf("[ 9] Configuration\n");
+		printf("[10] Clean server \n");
 		
 		scanf("%d",&mode);
-		system("clear");
-		
-		switch(mode){	
-			case 0 : choose_configuration();
-				break;
-			case 1 : start_server();
-				break;
-			case 2 : stop_server();
-				break;
-			case 3 : take_snap();
-				break;
-			case 4 : start_video_record();
-				break;
-			case 5 : start_motion_detector();
-				break;
-			case 6 : stop_motion_detector();
-				break;
-			case 7 : play_sound("meow");
-				break;
-			case 8 : play_sound("bug");
-				break;
-			default:;
+
+		if(mode == 9)
+		{
+			choose_configuration();
+		}
+		else if (mode == 4)
+		{
+			char* duration = (char*)malloc(5*sizeof(char));
+			printf("Set the duration of the record :\n");
+			scanf("%s",duration);
+
+			pthread_t pt;
+			table_threads[mode] = pt;
+			Params params = (Params)malloc(sizeof(struct PARAMS));
+			params->mode = mode;
+			params->duration = duration;
+			pthread_create(&table_threads[mode], NULL, launch_thread, (void *) params);
+		}
+		else if (mode == -1)
+		{
+			break;
+		}
+		else if (mode == 10)
+		{
+			clear_files_on_server();
+		}
+		else
+		{
+			pthread_t pt;
+			table_threads[mode] = pt;
+			Params params = (Params)malloc(sizeof(struct PARAMS));
+			params->mode = mode;
+			pthread_create(&table_threads[mode], NULL, launch_thread, (void *) params);
 		}
 	}
+
+	for (i = 0; i < 8; ++i)
+	{
+		pthread_join(table_threads[i], NULL);
+	}
+	clear_files_on_server();
 	
 	return 0;
 }
@@ -113,8 +165,8 @@ void stop_server(){
 *	Start motion detector module
 **/
 void start_motion_detector(){
+	printf("Server Starting\n");
 	char command[512] = "";
-
 	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_cam);
 	strcat(command,"' ssh pi@");
@@ -126,6 +178,7 @@ void start_motion_detector(){
 		printf("Commande : %s\n", command);
 	}
 	system(command);
+	printf("Server Started\n");
 }
 
 
@@ -133,8 +186,8 @@ void start_motion_detector(){
 *	Stop motion detector module
 **/
 void stop_motion_detector(){
+	printf("Server Stopping\n");
 	char command[512] = "";
-
 	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_cam);
 	strcat(command,"' ssh pi@");
@@ -146,6 +199,7 @@ void stop_motion_detector(){
 		printf("Commande : %s\n", command);
 	}
 	system(command);
+	printf("Server Stopped\n");
 }
 
 
@@ -154,7 +208,6 @@ void stop_motion_detector(){
 **/
 void play_sound(char* file){
 	char command[512] = "";
-
 	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_cam);
 	strcat(command,"' ssh pi@");
@@ -168,18 +221,16 @@ void play_sound(char* file){
 		printf("Commande : %s\n", command);
 	}
 	system(command);
+	printf("Sound sent\n");
 }
 
 
 /**
 *	Take a video record with the remote ip camera
 **/
-void start_video_record(){
-	char duration[9];
-	printf("Set the duration of the record :\n");
-	scanf("%s",duration);
+void start_video_record(char* duration){
+	printf("Starting video record\n");
 	char command[512] = "";
-
 	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_cam);
 	strcat(command,"' ssh pi@");
@@ -202,6 +253,7 @@ void start_video_record(){
 	}
 	system(command);
 
+	printf("Downloading video record\n");
 	char command2[512] = "";
 	strcat(command2,"wget -A avi -m -nd ");
 	strcat(command2,config->ip_rpi_cam);
@@ -220,13 +272,13 @@ void start_video_record(){
 	strcat(command3,config->ip_rpi_cam);
 	strcat(command3," -p ");
 	strcat(command3,config->port_rpi_cam);
+	strcat(command3," \"cd /var/www/todl/ ; ");
+	strcat(command3,"rm *.avi\"");
 	if(debug){
-		strcat(command3," 'rm /var/www/todl/*'");
 		printf("Commande : %s\n", command3);
-	} else {
-		strcat(command3," 'rm /var/www/todl/* > mov.log 2>&1'");
 	}
 	system(command3);
+	printf("Video record downloaded\n");
 }
 
 
@@ -234,6 +286,7 @@ void start_video_record(){
 *	Take a snap with the remote ip camera
 **/
 void take_snap(){
+	printf("Starting snap process\n");
 	char command[512] = "";
 	strcat(command,"sudo sshpass -p '");
 	strcat(command,config->pwd_rpi_cam);
@@ -255,8 +308,10 @@ void take_snap(){
 	}
 	system(command);
 
+	printf("Downloading snap\n");
 	char command2[512] = "";
 	strcat(command2,"wget -A png -m -nd ");
+
 	strcat(command2,config->ip_rpi_cam);
 	if(debug){
 		strcat(command2,"/todl > downloads.log");
@@ -273,15 +328,35 @@ void take_snap(){
 	strcat(command3,config->ip_rpi_cam);
 	strcat(command3," -p ");
 	strcat(command3,config->port_rpi_cam);
+	strcat(command3," \"cd /var/www/todl/ ; ");
+	strcat(command3,"rm *.png\"");
 	if(debug){
-		strcat(command3," 'rm /var/www/todl/*'");
 		printf("Commande : %s\n", command3);
-	} else {
-		strcat(command3," 'rm /var/www/todl/* > pic.log 2>&1'");
 	}
 	system(command3);
+	printf("Snap downloaded\n");
+}
 
-	printf("Snap took\n");
+
+void clear_files_on_server(){
+	printf("Server cleaning\n");
+	char command[512] = "";
+	strcat(command,"sudo sshpass -p '");
+	strcat(command,config->pwd_rpi_cam);
+	strcat(command,"' ssh pi@");
+	strcat(command,config->ip_rpi_cam);
+	strcat(command," -p ");
+	strcat(command,config->port_rpi_cam);
+	strcat(command," 'cd /var/www/todl/ ; ");
+	if(debug){
+		strcat(command,"rm *'");
+		printf("Commande : %s\n", command);
+	} else {
+		strcat(command,"rm *'");
+	}
+	system(command);
+
+	printf("Server cleaned\n");
 }
 
 
