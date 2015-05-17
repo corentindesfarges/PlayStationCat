@@ -23,6 +23,13 @@ Sélectionnez le menu "Launch server".
 
 ## Utiliser grunt pour le déploiement
 
+- Si besoin, installer le client grunt (avec les droits d'administration sur Windows)
+
+
+	sudo apt-get install nodejs-legacy
+	npm install -g grunt-cli
+
+
 - Installer les différentes dépendances grâce à la commande suivante:
 
 

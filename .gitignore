@@ -1,3 +1,7 @@
 *.pyc
 .ftppass
 node_modules
+*.avi
+*.png
+*.log
+*.o
