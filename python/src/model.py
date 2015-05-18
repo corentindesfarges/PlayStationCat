@@ -74,25 +74,24 @@ class LaserModel(object):
         for direction in directions:
             if direction == 'r':
                 try:
-                    self.setXAxis(self._validateAxis(self.getXAxis() - 15))
+                    self.setXAxis(self._validateAxis(self.getXAxis() - 10))
                 except ValueError:
                     print ''
             elif direction == 'u':
                 try:
-                    self.setYAxis(self._validateAxis(self.getYAxis() - 15))
+                    self.setYAxis(self._validateAxis(self.getYAxis() - 10))
                 except ValueError:
                     print ''
             elif direction == 'l':
                 try:
-                    self.setXAxis(self._validateAxis(self.getXAxis() + 15))
+                    self.setXAxis(self._validateAxis(self.getXAxis() + 10))
                 except ValueError:
                     print ''
             elif direction == 'd':
                 try:
-                    self.setYAxis(self._validateAxis(self.getYAxis() + 15))
+                    self.setYAxis(self._validateAxis(self.getYAxis() + 10))
                 except ValueError:
                     print ''
-            print 'DIRECTION ' + direction
             time.sleep(0.5)
 
 

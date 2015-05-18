@@ -6,6 +6,28 @@
 
     Communication.get();
 
+    var LocStorage = function(){
+        this.storage = null;
+        this.isAvailable;
+        this._init = function(){
+            this.storage = context.localStorage == 'undefined' ? null : context.localStorage;
+            this.isAvailable = this.storage == null;
+        }
+
+        this.get = function(key){
+            if(!this.isAvailable)
+                return null;
+            return this.storage.getItem(key);
+        }
+
+        this.put = function(key, values){
+            if(!this.isAvailable)
+                return null;
+            this.storage.setItem(key, value);
+        }
+        this._init();
+    }
+
     var updateAxis = function() {
         Communication.get().emit('set.servos', {
             xaxis : axeX.val(),
@@ -130,29 +152,23 @@
         if(modeRecording === false) {
             // Début de l'enregistrement
             $(this).attr('data-text', $(this).html()).html('<span class="glyphicon glyphicon-stop"></span> Arrêter l\'enregistrement');
+            $(this).find('.bg-info').removeClass('hidden');
             modeRecording = true;
         } else {
             // Fin de l'enregistrement
             $(this).html($(this).attr('data-text'));
             var nom = prompt("Entrez un nom pour cette enregistrement", "Chemin " + (recordList.length + 1));
-            recordList.push({
-                name : nom,
-                directions : [].concat(recordKeyList)
-            });
-
-            laserwaySection.find('table tbody').empty()
-            for(var i = 0; i < recordList.length; i++){
-                var rec = recordList[i],
-                    node = $('<tr><td>'+rec.name+'</td><td><button class="btn btn-success">Lancer</button></td></tr>');
-
-                node.find('button').bind('click', function(){
-                    Communication.get().emit('playrandomway', {
-                        'directions' : rec.directions
-                    });
+            if(nom !== null) {
+                recordList.push({
+                    name : nom,
+                    directions : [].concat(recordKeyList)
                 });
-                laserwaySection.find('table tbody').append(node);
+                LocStorage().put('laserway', recordList);
+
+                renderRecordList();
             }
 
+            $(this).find('.bg-info').addClass('hidden');
             recordKeyList = [];
             modeRecording = false;
         }
@@ -162,7 +178,26 @@
         Communication.get().emit('playrandomway', {
             'directions' : []
         });
-    });        
+    });   
+
+    var renderRecordList = function(){
+        laserwaySection.find('table tbody').empty()
+        for(var i = 0; i < recordList.length; i++){
+            var rec = recordList[i],
+                node = $('<tr><td>'+rec.name+'</td><td><button class="btn btn-success">Lancer</button></td></tr>');
+
+            node.find('button').bind('click', function(){
+                Communication.get().emit('playrandomway', {
+                    'directions' : rec.directions
+                });
+            });
+            laserwaySection.find('table').removeClass('hidden').find('tbody').append(node);
+        }
+    }
+
+    var locStoreRecordList = LocStorage().get('laserway');
+    if(locStoreRecordList != null)
+        recordList.concat(locStoreRecordList);
 
     var updateServos = function() {
         Communication.get().emit('get.servos');

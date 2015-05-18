@@ -8,15 +8,14 @@ Cet équipement utlise python, un langage de programmation, pour faire fonctionn
 
 ### Par lancement du fichier python
 
-Exécutez la commande suivante dans le répertoire **python** :
+Exécutez la commande suivante dans le répertoire `python` :
 
 	sudo python server.py start
 
-### Par le software développé en C
+### Par l'intermédiaire du software développé en C
 
-Compilez le fichier main.c et exécutez-le.  
+Compilez le fichier main.c dans le répertoire `C` et exécutez-le.  
 Sélectionnez le menu "Launch server".
-
 
 
 # Pour les développeurs
@@ -30,20 +29,38 @@ Sélectionnez le menu "Launch server".
 	npm install -g grunt-cli
 
 
-- Installer les différentes dépendances grâce à la commande suivante:
+- Installer les différentes dépendances npm grâce à la commande suivante:
 
 
 	npm install
 
-- Créer un fichier .ftppass et renseignez les identifiants (S)FTP comme ceci:
+- Créer un fichier .ftppass et secret.json et renseignez les identifiants (S)FTP comme ceci:
 
+	
+	.ftppass  
+	{  
+	  "key1": {  
+	    "username": "XXX",  
+	    "password": "YYY"  
+	  },  
+	  "key2": {  
+	    "username": "XXX",  
+	    "password": "YYY"  
+	  }  
+	}  
 
-	{
-		"key1": {
-			"username": "usrnme",
-			"password": "psswd"
-		}
-	}
+	secret.json  
+	{  
+		"toy" : {  
+			"host": "XX",  
+			"port": "YY"  
+		},  
+		"cam" : {  
+			"host": "XX",  
+			"port": "YY"  
+		}  
+	}  
+
 
 - Exécuter la commande suivante
 
