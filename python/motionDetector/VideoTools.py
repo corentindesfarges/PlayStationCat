@@ -49,15 +49,16 @@ class VideoTools():
 		diff = self.getDiff(im0,im1,im2)
 		nbWhite = cv2.countNonZero(diff)
 		
-		if self.nbImages == 50:
+		if self.nbImages == 20:
 			print "Detection initialized"
 		elif self.nbImages == 500:
 			self.nbImages = 0
 			self.somme = 0
-		
-		if self.nbImages > 50 and abs(nbWhite-self.moyenne)>self.moyenne*0.05:
+
+		if self.nbImages > 20 and (nbWhite>self.moyenne+self.moyenne*0.20 or nbWhite<self.moyenne-self.moyenne*0.20):
 			self.test = self.test + 1
 			if self.test == 5:
+				print "Motion detected"
 				self.bt.sendSMS("A cat has been detected!")
 		else:
 			self.test = 0
