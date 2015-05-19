@@ -97,13 +97,12 @@ class LaserModel(object):
 
     def _validateAxis(self, value):
         """Valide si les valeurs de servo sont dans la fourchette autorisee."""
-        try:
-            v = int(value)
-            if v < self.servoMin or v > self.servoMax:
-                raise ValueError()
-            return v
-        except:
-            raise ValueError('Invalid value! Must be a value between %i and %i.' % (self.servoMin, self.servoMax))
+        v = int(value)
+        if v < self.servoMin: 
+            return self.servoMin
+        elif v > self.servoMax:
+            return self.servoMax
+        return v
 
     def _loadVideoConfiguration(self):
         """Charge les donnees de configuration video depuis le JSON."""

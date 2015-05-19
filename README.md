@@ -15,7 +15,7 @@ Exécutez la commande suivante dans le répertoire `python` :
 ### Par l'intermédiaire du software développé en C
 
 Compilez le fichier main.c dans le répertoire `C` et exécutez-le.  
-Sélectionnez le menu "Launch server".
+Sélectionnez le menu "Launch Application Server".
 
 
 # Pour les développeurs
@@ -26,6 +26,7 @@ Sélectionnez le menu "Launch server".
 
 
 	sudo apt-get install nodejs-legacy
+	
 	npm install -g grunt-cli
 
 
@@ -36,7 +37,7 @@ Sélectionnez le menu "Launch server".
 
 - Créer un fichier .ftppass et secret.json et renseignez les identifiants (S)FTP comme ceci:
 
-	
+
 	.ftppass  
 	{  
 	  "key1": {  
@@ -51,14 +52,14 @@ Sélectionnez le menu "Launch server".
 
 	secret.json  
 	{  
-		"toy" : {  
-			"host": "XX",  
-			"port": "YY"  
-		},  
-		"cam" : {  
-			"host": "XX",  
-			"port": "YY"  
-		}  
+	  "toy" : {  
+		"host": "XX",  
+		"port": "YY"
+	  },  
+	  "cam" : {  
+        "host": "XX",  
+		"port": "YY"  
+	  }  
 	}  
 
 

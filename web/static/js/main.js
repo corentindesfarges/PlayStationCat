@@ -1,3 +1,26 @@
+var LocStorage = {
+    storage : null,
+    isAvailable : null,
+    _init : function(){
+        if(this.storage == null){
+            this.storage = window.localStorage == 'undefined' ? null : window.localStorage;
+            this.isAvailable = this.storage !== null;
+        }
+    },
+    get : function(key){
+        this._init();
+        if(!this.isAvailable)
+            return null;
+        return JSON.parse(this.storage.getItem(key));
+    },
+    put : function(key, values){
+        this._init();
+        if(!this.isAvailable)
+            return null;
+        this.storage.setItem(key, JSON.stringify(values));
+    }
+}
+
 ;(function(context) {
 
     var axeX = $('.xaxis'), axeY = $('.yaxis');
@@ -5,28 +28,6 @@
     var minY = parseInt(axeY.attr('min')), maxY = parseInt(axeY.attr('max'));
 
     Communication.get();
-
-    var LocStorage = function(){
-        this.storage = null;
-        this.isAvailable;
-        this._init = function(){
-            this.storage = context.localStorage == 'undefined' ? null : context.localStorage;
-            this.isAvailable = this.storage == null;
-        }
-
-        this.get = function(key){
-            if(!this.isAvailable)
-                return null;
-            return this.storage.getItem(key);
-        }
-
-        this.put = function(key, values){
-            if(!this.isAvailable)
-                return null;
-            this.storage.setItem(key, value);
-        }
-        this._init();
-    }
 
     var updateAxis = function() {
         Communication.get().emit('set.servos', {
@@ -151,8 +152,8 @@
     laserwaySection.find('.record').click(function(){
         if(modeRecording === false) {
             // Début de l'enregistrement
+            laserwaySection.find('.text-info').removeClass('hidden');
             $(this).attr('data-text', $(this).html()).html('<span class="glyphicon glyphicon-stop"></span> Arrêter l\'enregistrement');
-            $(this).find('.bg-info').removeClass('hidden');
             modeRecording = true;
         } else {
             // Fin de l'enregistrement
@@ -163,12 +164,11 @@
                     name : nom,
                     directions : [].concat(recordKeyList)
                 });
-                LocStorage().put('laserway', recordList);
-
+                LocStorage.put('laserways', recordList);
                 renderRecordList();
             }
 
-            $(this).find('.bg-info').addClass('hidden');
+            laserwaySection.find('.text-info').addClass('hidden');
             recordKeyList = [];
             modeRecording = false;
         }
@@ -195,9 +195,11 @@
         }
     }
 
-    var locStoreRecordList = LocStorage().get('laserway');
-    if(locStoreRecordList != null)
-        recordList.concat(locStoreRecordList);
+    var locStoreRecordList = LocStorage.get('laserways');
+    if(locStoreRecordList != null){
+        recordList = recordList.concat(locStoreRecordList);
+        renderRecordList();
+    }
 
     var updateServos = function() {
         Communication.get().emit('get.servos');
@@ -289,7 +291,6 @@
     var interval = 500;
 
     gamepad.bind(Gamepad.Event.AXIS_CHANGED, function(e) {
-        console.log(e.axis, e.value);
         var valChanged = false;
         if(e.axis == 'LEFT_STICK_X' && (e.value > 0.3 || e.value < -0.3)){
             if(e.value > 0)

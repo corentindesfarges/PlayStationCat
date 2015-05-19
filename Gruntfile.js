@@ -16,7 +16,7 @@ module.exports = function (grunt) {
                 },
                 src: '.',
                 dest: '/home/pi/PlayStationCat',
-                exclusions: ['.DS_Store', 'Thumbs.db', '*.pyc', '.git*', '.ftppass', 'node_modules', 'sftp-config.json', 'package.json', 'Gruntfile.js', '*.md', 'secret.json'],
+                exclusions: ['.DS_Store', 'Thumbs.db', '*.pyc', '.git*', '.ftppass', 'node_modules', 'sftp-config.json', 'package.json', 'Gruntfile.js', '*.md', 'secret.json', 'C', 'python/motionDetector'],
                 serverSep: '/',
                 concurrency: 4,
                 progress: true
@@ -29,7 +29,7 @@ module.exports = function (grunt) {
                 },
                 src: '.',
                 dest: '/home/pi/PlayStationCat',
-                exclusions: ['.DS_Store', 'Thumbs.db', '*.pyc', '.git*', '.ftppass', 'node_modules', 'sftp-config.json', 'package.json', 'Gruntfile.js', '*.md', 'secret.json'],
+                exclusions: ['.DS_Store', 'Thumbs.db', '*.pyc', '.git*', '.ftppass', 'node_modules', 'sftp-config.json', 'package.json', 'Gruntfile.js', '*.md', 'secret.json', 'C', 'data', 'bash', 'confVideo.json', 'get-pip.py', 'PlaySound.py', 'server.py', 'src', 'templates', 'static', 'web'],
                 serverSep: '/',
                 concurrency: 4,
                 progress: true

@@ -81,6 +81,7 @@ def target(message):
 @socketio.on('playrandomway', namespace='/api')
 def target(message):
 	model.playRandomWay(message['directions'])
+	emit('get_servos_evt', {'xaxis': model.getXAxis(), 'yaxis': model.getYAxis() }, broadcast=True)
 
 
 # Demarrage du framework
