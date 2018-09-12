@@ -14,6 +14,9 @@ Exécutez la commande suivante dans le répertoire `python` :
 
 ### Par l'intermédiaire du software développé en C
 
+```C
+gcc main.c -lpthread
+```
 Compilez le fichier main.c dans le répertoire `C` et exécutez-le.  
 Sélectionnez le menu "Launch Application Server".
 
